@@ -38,7 +38,7 @@ Modified by evilbutcher
 
 */
 const $ = new Env("机场签到");
-$.autoLogout = true;
+$.autoLogout = false;
 
 if (
   $.getdata("evil_checkintitle") != undefined &&
