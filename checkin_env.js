@@ -161,7 +161,7 @@ function checkin(url, email, password, title) {
   let checkinPath =
     url.indexOf("auth/login") != -1 ? "user/checkin" : "user/checkin";
   var checkinreqest = {
-    url: url.replace(/(auth\/login|user\/login|signin)(.php)*/g, "") + checkinPath,
+    url: url.replace(/(auth|user)\/login(.php)*/g, "") + checkinPath,
   };
   console.log(JSON.stringify(checkinreqest));
   return new Promise((resolve) => {
