@@ -135,7 +135,8 @@ function login(url, email, password, title) {
   console.log(loginPath + " 保护隐私隐去登录信息");
   return new Promise((resolve) => {
     $.post(table, function (error, response, data) {
-     SetCookies=response.headers.Set-Cookie;
+     console.log(response.headers);
+     SetCookies=JSON.stringify(response.headers.Set-Cookie);
      console.log(SetCookies);
       if (error) {
         console.log(JSON.stringify(error));
