@@ -114,7 +114,10 @@ async function launch() {
     } else {
       await login(url, email, password, title);
       if ($.loginok == true) {
-        await checkin(url, email, password, title,SetCookies);
+       if(i==1){
+        await checkin2(url, email, password, title,SetCookies);}
+       else{
+        await checkin(url, email, password, title,SetCookies);}
         if ($.checkinok == true) {
           await dataResults(url, $.checkindatamsg, title);
         }
@@ -136,11 +139,11 @@ function login(url, email, password, title) {
   return new Promise((resolve) => {
     $.post(table, function (error, response, data) {     
      SetCookies=JSON.stringify(response);
-     console.log(SetCookies);
+     //console.log(SetCookies);
      var w=SetCookies.indexOf("uid");
      var x=SetCookies.indexOf("Server")-3;
      SetCookies=SetCookies.substring(w,x);
-     console.log(SetCookies);
+     //console.log(SetCookies);
       if (error) {
         console.log(JSON.stringify(error));
         $.msg(title + "登录失败", JSON.stringify(error), "");
@@ -170,12 +173,6 @@ function checkin(url, email, password, title,SetCookies) {
    var checkinreqest = {
      url: url.replace(/(auth|user)\/login(.php)*/g, "") + checkinPath,
    };
- if(url=="https://shangwangke.org/user/checkin"){
-   checkinreqest = {
-     url: url.replace(/(auth|user)\/login(.php)*/g, "") + checkinPath,
-     headers: { Cookie: SetCookies },
-   };
- }
   console.log(JSON.stringify(checkinreqest));
   return new Promise((resolve) => {
     $.post(checkinreqest, function (error, response, data) {
@@ -197,7 +194,33 @@ function checkin(url, email, password, title,SetCookies) {
     });
   });
 }
-
+function checkin2(url, email, password, title,SetCookies) {
+  var checkinreqest = {
+     url: "https://shangwangke.org/user/checkin",
+     headers: { Cookie: SetCookies },
+   };
+ 
+  console.log(JSON.stringify(checkinreqest));
+  return new Promise((resolve) => {
+    $.post(checkinreqest, function (error, response, data) {
+      if (error) {
+        console.log(JSON.stringify(error));
+        $.msg(title + "签到失败", JSON.stringify(error), "");
+        resolve();
+      } else {
+        if (data.match(/\"msg\"\:/)) {
+          $.checkinok = true;
+          $.checkindatamsg = JSON.parse(data).msg;
+          $.log("签到成功");
+        } else {
+          $.checkinok = false;
+          $.log("签到失败");
+        }
+        resolve();
+      }
+    });
+  });
+}
 function dataResults(url, checkinMsg, title) {
   let userPath = url.indexOf("auth/login") != -1 ? "user" : "user";
   var datarequest = {
