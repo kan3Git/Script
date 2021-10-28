@@ -114,8 +114,10 @@ async function launch() {
     } else {
       await login(url, email, password, title);
       if ($.loginok == true) {
-       if(i==1){
-        await checkin2(url, email, password, title,SetCookies);}
+       if(i==2){
+        await checkin2(url, email, password, title,SetCookies);
+        console.log(i);
+       }
        else{
         await checkin(url, email, password, title,SetCookies);}
         if ($.checkinok == true) {
