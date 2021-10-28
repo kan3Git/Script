@@ -39,6 +39,7 @@ Modified by evilbutcher
 */
 const $ = new Env("机场签到");
 $.autoLogout = false;
+let SetCookies="";
 
 if (
   $.getdata("evil_checkintitle") != undefined &&
@@ -98,7 +99,7 @@ async function launch() {
     let url = urls[i];
     let email = emails[i];
     let password = passwords[i];
-    let SetCookies="";
+    SetCookies="";
     if ($.autoLogout) {
       let logoutPath =
         url.indexOf("auth/login") != -1 ? "user/logout" : "user/logout";
@@ -114,9 +115,8 @@ async function launch() {
     } else {
       await login(url, email, password, title);
       if ($.loginok == true) {
-       if(i==2){
+       if(i==1){
         await checkin2(url, email, password, title,SetCookies);
-        console.log(i);
        }
        else{
         await checkin(url, email, password, title,SetCookies);}
@@ -145,7 +145,7 @@ function login(url, email, password, title) {
      var w=SetCookies.indexOf("uid");
      var x=SetCookies.indexOf("Server")-3;
      SetCookies=SetCookies.substring(w,x);
-     //console.log(SetCookies);
+     console.log(SetCookies);
       if (error) {
         console.log(JSON.stringify(error));
         $.msg(title + "登录失败", JSON.stringify(error), "");
