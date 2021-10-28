@@ -98,6 +98,7 @@ async function launch() {
     let url = urls[i];
     let email = emails[i];
     let password = passwords[i];
+    let SetCookies="";
     if ($.autoLogout) {
       let logoutPath =
         url.indexOf("auth/login") != -1 ? "user/logout" : "user/logout";
@@ -134,7 +135,8 @@ function login(url, email, password, title) {
   console.log(loginPath + " 保护隐私隐去登录信息");
   return new Promise((resolve) => {
     $.post(table, function (error, response, data) {
-     console.log(response);
+     SetCookies=JSON.parse(response).headers.Set-Cookie;
+     console.log(SetCookies);
       if (error) {
         console.log(JSON.stringify(error));
         $.msg(title + "登录失败", JSON.stringify(error), "");
