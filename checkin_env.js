@@ -167,10 +167,15 @@ function login(url, email, password, title) {
 function checkin(url, email, password, title,SetCookies) {
   let checkinPath =
     url.indexOf("auth/login") != -1 ? "user/checkin" : "user/checkin";
- var checkinreqest = {
-    url: url.replace(/(auth|user)\/login(.php)*/g, "") + checkinPath,
-    headers: { Cookie: SetCookies },
-  };
+   var checkinreqest = {
+     url: url.replace(/(auth|user)\/login(.php)*/g, "") + checkinPath,
+   };
+ if(url=="https://shangwangke.org/user/checkin"){
+   checkinreqest = {
+     url: url.replace(/(auth|user)\/login(.php)*/g, "") + checkinPath,
+     headers: { Cookie: SetCookies },
+   };
+ }
   console.log(JSON.stringify(checkinreqest));
   return new Promise((resolve) => {
     $.post(checkinreqest, function (error, response, data) {
