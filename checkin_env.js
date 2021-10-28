@@ -134,9 +134,12 @@ function login(url, email, password, title) {
   };
   console.log(loginPath + " 保护隐私隐去登录信息");
   return new Promise((resolve) => {
-    $.post(table, function (error, response, data) {
-     console.log(response.headers);
-     SetCookies=JSON.stringify(response.headers.Set-Cookie);
+    $.post(table, function (error, response, data) {     
+     SetCookies=JSON.stringify(response);
+     console.log(SetCookies);
+     var w=SetCookies.indexOf("uid");
+     var x=SetCookies.indexOf("Server")-3;
+     SetCookies=SetCookies.substring(w,x);
      console.log(SetCookies);
       if (error) {
         console.log(JSON.stringify(error));
