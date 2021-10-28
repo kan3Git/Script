@@ -108,13 +108,13 @@ async function launch() {
       console.log(JSON.stringify(logouturl));
       $.get(logouturl);
     }
-    await checkin(url, email, password, title);
+    await checkin(url, email, password, title,SetCookies);
     if ($.checkinok == true) {
       await dataResults(url, $.checkindatamsg, title);
     } else {
       await login(url, email, password, title);
       if ($.loginok == true) {
-        await checkin(url, email, password, title);
+        await checkin(url, email, password, title,SetCookies);
         if ($.checkinok == true) {
           await dataResults(url, $.checkindatamsg, title);
         }
@@ -164,7 +164,7 @@ function login(url, email, password, title) {
   });
 }
 
-function checkin(url, email, password, title) {
+function checkin(url, email, password, title,SetCookies) {
   let checkinPath =
     url.indexOf("auth/login") != -1 ? "user/checkin" : "user/checkin";
  var checkinrequest = {
