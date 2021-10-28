@@ -134,6 +134,7 @@ function login(url, email, password, title) {
   console.log(loginPath + " 保护隐私隐去登录信息");
   return new Promise((resolve) => {
     $.post(table, function (error, response, data) {
+     console.log(response);
       if (error) {
         console.log(JSON.stringify(error));
         $.msg(title + "登录失败", JSON.stringify(error), "");
