@@ -39,7 +39,6 @@ Modified by evilbutcher
 */
 const $ = new Env("机场签到");
 $.autoLogout = false;
-let SetCookies="";
 
 if (
   $.getdata("evil_checkintitle") != undefined &&
@@ -99,7 +98,6 @@ async function launch() {
     let url = urls[i];
     let email = emails[i];
     let password = passwords[i];
-    SetCookies="";
     if ($.autoLogout) {
       let logoutPath =
         url.indexOf("auth/login") != -1 ? "user/logout" : "user/logout";
@@ -109,17 +107,13 @@ async function launch() {
       console.log(JSON.stringify(logouturl));
       $.get(logouturl);
     }
-    await checkin(url, email, password, title,SetCookies);
+    await checkin(url, email, password, title);
     if ($.checkinok == true) {
       await dataResults(url, $.checkindatamsg, title);
     } else {
       await login(url, email, password, title);
       if ($.loginok == true) {
-       if(i==1){
-        await checkin2(url, email, password, title,SetCookies);
-       }
-       else{
-        await checkin(url, email, password, title,SetCookies);}
+        await checkin(url, email, password, title);
         if ($.checkinok == true) {
           await dataResults(url, $.checkindatamsg, title);
         }
@@ -139,13 +133,7 @@ function login(url, email, password, title) {
   };
   console.log(loginPath + " 保护隐私隐去登录信息");
   return new Promise((resolve) => {
-    $.post(table, function (error, response, data) {     
-     SetCookies=JSON.stringify(response);
-     //console.log(SetCookies);
-     var w=SetCookies.indexOf("uid");
-     var x=SetCookies.indexOf("Server")-3;
-     SetCookies=SetCookies.substring(w,x);
-     console.log(SetCookies);
+    $.post(table, function (error, response, data) {
       if (error) {
         console.log(JSON.stringify(error));
         $.msg(title + "登录失败", JSON.stringify(error), "");
@@ -169,39 +157,12 @@ function login(url, email, password, title) {
   });
 }
 
-function checkin(url, email, password, title,SetCookies) {
+function checkin(url, email, password, title) {
   let checkinPath =
     url.indexOf("auth/login") != -1 ? "user/checkin" : "user/checkin";
-   var checkinreqest = {
-     url: url.replace(/(auth|user)\/login(.php)*/g, "") + checkinPath,
-   };
-  console.log(JSON.stringify(checkinreqest));
-  return new Promise((resolve) => {
-    $.post(checkinreqest, function (error, response, data) {
-      if (error) {
-        console.log(JSON.stringify(error));
-        $.msg(title + "签到失败", JSON.stringify(error), "");
-        resolve();
-      } else {
-        if (data.match(/\"msg\"\:/)) {
-          $.checkinok = true;
-          $.checkindatamsg = JSON.parse(data).msg;
-          $.log("签到成功");
-        } else {
-          $.checkinok = false;
-          $.log("签到失败");
-        }
-        resolve();
-      }
-    });
-  });
-}
-function checkin2(url, email, password, title,SetCookies) {
   var checkinreqest = {
-     url: "https://shangwangke.org/user/checkin",
-     headers: { Cookie: SetCookies },
-   };
- 
+    url: url.replace(/(auth|user)\/login(.php)*/g, "") + checkinPath,
+  };
   console.log(JSON.stringify(checkinreqest));
   return new Promise((resolve) => {
     $.post(checkinreqest, function (error, response, data) {
@@ -223,6 +184,7 @@ function checkin2(url, email, password, title,SetCookies) {
     });
   });
 }
+
 function dataResults(url, checkinMsg, title) {
   let userPath = url.indexOf("auth/login") != -1 ? "user" : "user";
   var datarequest = {
