@@ -38,5 +38,10 @@
             console.log('/'+codename+' '+sites.slice(geshu, geshu+5).join("&")+'\n');
             geshu=geshu+5;
         }
+        for (let j = 0; j < sites.length; j++) {
+            var newsites=sites.slice(0);      
+            newsites.splice(j,1);
+            console.log('\''+newsites.join("@")+'\',')
+        }
    }
  })()
