@@ -109,7 +109,7 @@ if (url.indexOf(path2) != -1 || url.indexOf(path4) != -1) {
         $done({ body });
     }
     let obj = JSON.parse(body);
-    const floors = obj.floors;
+    const floors = obj.floors;    
     const commodity_info = floors[floors.length - 1];
     const others = obj.others;
     const domain = obj.domain;
@@ -146,6 +146,23 @@ if (url.indexOf(path2) != -1 || url.indexOf(path4) != -1) {
             $tool.notify("", "", msg, oprnUrl);
         })
         .finally(() => {
+        const lowerword = adword_obj()
+            lowerword.data.ad.textColor = "#fe0000"
+            let bestIndex = 0
+            for (let index = 0; index < floors.length; index++) {
+                const element = floors[index]
+                if (element.mId == lowerword.mId) {
+                    bestIndex = index + 1
+                    break
+                } else {
+                    if (element.sortId > lowerword.sortId) {
+                        bestIndex = index
+                        break
+                    }
+                }
+            }
+            lowerword.data.ad.adword = msg
+            floors.insert(bestIndex, lowerword)
             $done({ body: JSON.stringify(obj) });
         });
 }
