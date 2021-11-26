@@ -104,44 +104,56 @@ if (url.indexOf(path3) != -1) {
     $done({ body: JSON.stringify(obj) });
 }
 
-if (url.indexOf(path2) != -1) {
+if (url.indexOf(path2) != -1 || url.indexOf(path4) != -1) {
+    if (!$tool.isQuanX) {
+        $done({ body });
+    }
     let obj = JSON.parse(body);
     const floors = obj.floors;
     const commodity_info = floors[floors.length - 1];
-    const shareUrl = commodity_info.data.property.shareUrl;
-    let msg = ""
-    request_history_price(shareUrl)
-        .then(data => {
-            if (data.priceTrend.series.length == 0) throw new Error('Whoops!')
-            msg = priceSummary(data.priceTrend)
-        })
-        .catch(error => msg = "暂无价格信息")
-        .finally(() => {
-            const lowerword = adword_obj()
-            lowerword.data.ad.textColor = "#fe0000"
-            let bestIndex = 0
-            for (let index = 0; index < floors.length; index++) {
-                const element = floors[index]
-                if (element.mId == lowerword.mId) {
-                    bestIndex = index + 1
-                    break
-                } else {
-                    if (element.sortId > lowerword.sortId) {
-                        bestIndex = index
-                        break
-                    }
-                }
+    const others = obj.others;
+    const domain = obj.domain;
+    const shareUrl =
+        url.indexOf(path4) != -1
+            ? domain.h5Url
+            : url.indexOf(path2h) != -1
+            ? others.property.shareUrl
+            : commodity_info.data.property.shareUrl;
+    autoScheme = url.indexOf(path2h) != -1 ? "openApp.jdHealth" : "openjd";
+    //const scheme = !autoChoose ? chooseScheme : url.indexOf(path4) != -1 ? "openapp.jdpingou" : url.indexOf(path2h) != -1 ? "openApp.jdHealth" : url.indexOf("lite_"+path3) != -1 ? "openjdlite" : "openjd";
+    let getHistory = request_history_price(shareUrl);
+    let convertURL = "";
+    let jxconvertURL = "";
+    if (useConvert) {
+        convertURL = convert(shareUrl);
+        jxconvertURL = url.indexOf(path4) != -1 ? convert(shareUrl, true) : undefined;
+    }
+    Promise.all([getHistory, convertURL, jxconvertURL])
+        .then((detail) => {
+            let msg = "";
+            if (detail[1] == "useJXOrigin") detail[1] = detail[2];
+            if (detail[0].lower_tip) {
+                msg += detail[0].lower_tip;
+                let convertmsg = detail[1].convertURL ? detail[1].msg : detail[1];
+                msg += convertmsg ? "\n" + convertmsg : "";
+                msg += "\n" + detail[0].historydetail;
+            } else {
+                let convertmsg = detail[1].convertURL ? detail[1].msg : detail[1];
+                msg += convertmsg ? convertmsg + "\n" : "";
+                msg += detail[0];
             }
-            lowerword.data.ad.adword = msg
-            floors.insert(bestIndex, lowerword)
-            $done({ body: JSON.stringify(obj) })
+            let oprnUrl = detail[1].convertURL ? detail[1].convertURL : "";
+            $tool.notify("", "", msg, oprnUrl);
         })
+        .finally(() => {
+            $done({ body });
+        });
 }
 
 function lowerMsgs(data) {
     const lower = data.lowerPriceyh;
     const lowerDate = dateFormat(data.lowerDateyh);
-    const lowerMsg = "🍵 历史最低到手价：¥" + String(lower) + ` (${lowerDate}) `;
+    const lowerMsg = "🍵 最低到手价：" + String(lower) + ` (${lowerDate}) `;
     return lowerMsg;
 }
 
@@ -151,9 +163,9 @@ function priceSummary(data) {
     let list = listPriceDetail.concat(historySummary(data.single));
     list.forEach((item, index) => {
         if (item.Name == "双11价格") {
-            item.Name = "双十一价格";
+            item.Name = "双11";
         } else if (item.Name == "618价格") {
-            item.Name = "六一八价格";
+            item.Name = "618";
         }
         let price = String(parseInt(item.Price.substr(1)));
         summary += `\n${item.Name}   ${isNaN(price) ? "-" : "¥" + price}   ${item.Date}   ${
@@ -178,28 +190,28 @@ function historySummary(single) {
             if (index == 0) {
                 currentPrice = price;
                 lowest30 = {
-                    Name: "三十天最低",
+                    Name: "30最低",
                     Price: `¥${String(price)}`,
                     Date: date,
                     Difference: difference(currentPrice, price),
                     price,
                 };
                 lowest90 = {
-                    Name: "九十天最低",
+                    Name: "90最低",
                     Price: `¥${String(price)}`,
                     Date: date,
                     Difference: difference(currentPrice, price),
                     price,
                 };
                 lowest180 = {
-                    Name: "一百八最低",
+                    Name: "180最低",
                     Price: `¥${String(price)}`,
                     Date: date,
                     Difference: difference(currentPrice, price),
                     price,
                 };
                 lowest360 = {
-                    Name: "三百六最低",
+                    Name: "360最低",
                     Price: `¥${String(price)}`,
                     Date: date,
                     Difference: difference(currentPrice, price),
