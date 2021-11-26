@@ -124,13 +124,13 @@ if (url.indexOf(path2) != -1 || url.indexOf(path4) != -1) {
     let getHistory = request_history_price(shareUrl);
     let convertURL = "";
     let jxconvertURL = "";
+    let msg = "";
     if (useConvert) {
         convertURL = convert(shareUrl);
         jxconvertURL = url.indexOf(path4) != -1 ? convert(shareUrl, true) : undefined;
     }
     Promise.all([getHistory, convertURL, jxconvertURL])
         .then((detail) => {
-            let msg = "";
             if (detail[1] == "useJXOrigin") detail[1] = detail[2];
             if (detail[0].lower_tip) {
                 msg += detail[0].lower_tip;
