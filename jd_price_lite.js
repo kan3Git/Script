@@ -104,49 +104,20 @@ if (url.indexOf(path3) != -1) {
     $done({ body: JSON.stringify(obj) });
 }
 
-if (url.indexOf(path2) != -1 || url.indexOf(path4) != -1) {
-    if (!$tool.isQuanX) {
-        $done({ body });
-    }
+if (url.indexOf(path2) != -1) {
     let obj = JSON.parse(body);
-    const floors = obj.floors;    
+    const floors = obj.floors;
     const commodity_info = floors[floors.length - 1];
-    const others = obj.others;
-    const domain = obj.domain;
-    const shareUrl =
-        url.indexOf(path4) != -1
-            ? domain.h5Url
-            : url.indexOf(path2h) != -1
-            ? others.property.shareUrl
-            : commodity_info.data.property.shareUrl;
-    autoScheme = url.indexOf(path2h) != -1 ? "openApp.jdHealth" : "openjd";
-    //const scheme = !autoChoose ? chooseScheme : url.indexOf(path4) != -1 ? "openapp.jdpingou" : url.indexOf(path2h) != -1 ? "openApp.jdHealth" : url.indexOf("lite_"+path3) != -1 ? "openjdlite" : "openjd";
-    let getHistory = request_history_price(shareUrl);
-    let convertURL = "";
-    let jxconvertURL = "";
-    let msg = "";
-    if (useConvert) {
-        convertURL = convert(shareUrl);
-        jxconvertURL = url.indexOf(path4) != -1 ? convert(shareUrl, true) : undefined;
-    }
-    Promise.all([getHistory, convertURL, jxconvertURL])
-        .then((detail) => {
-            if (detail[1] == "useJXOrigin") detail[1] = detail[2];
-            if (detail[0].lower_tip) {
-                msg += detail[0].lower_tip;
-                let convertmsg = detail[1].convertURL ? detail[1].msg : detail[1];
-                msg += convertmsg ? "\n" + convertmsg : "";
-                msg += "\n" + detail[0].historydetail;
-            } else {
-                let convertmsg = detail[1].convertURL ? detail[1].msg : detail[1];
-                msg += convertmsg ? convertmsg + "\n" : "";
-                msg += detail[0];
-            }
-            let oprnUrl = detail[1].convertURL ? detail[1].convertURL : "";
-            $tool.notify("", "", msg, oprnUrl);
+    const shareUrl = commodity_info.data.property.shareUrl;
+    let msg = ""
+    request_history_price(shareUrl)
+        .then(data => {
+            if (data.priceTrend.series.length == 0) throw new Error('Whoops!')
+            msg = priceSummary(data.priceTrend)
         })
+        .catch(error => msg = "暂无价格信息")
         .finally(() => {
-        const lowerword = adword_obj()
+            const lowerword = adword_obj()
             lowerword.data.ad.textColor = "#fe0000"
             let bestIndex = 0
             for (let index = 0; index < floors.length; index++) {
@@ -163,8 +134,8 @@ if (url.indexOf(path2) != -1 || url.indexOf(path4) != -1) {
             }
             lowerword.data.ad.adword = msg
             floors.insert(bestIndex, lowerword)
-            $done({ body: JSON.stringify(obj) });
-        });
+            $done({ body: JSON.stringify(obj) })
+        })
 }
 
 function lowerMsgs(data) {
